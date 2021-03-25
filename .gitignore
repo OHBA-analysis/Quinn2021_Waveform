@@ -1,0 +1,6 @@
+*.swo
+*.swp
+data
+analysis
+figures
+__pycache__

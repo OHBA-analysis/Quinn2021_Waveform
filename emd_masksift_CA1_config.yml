@@ -1,0 +1,37 @@
+sift_type: mask_sift
+---
+mask_amp: 1
+mask_amp_mode: ratio_sig
+mask_freqs:
+- 0.28
+- 0.16
+- 0.056
+- 0.028
+- 0.02
+- 0.0056
+- 0.0008
+- 0.0
+- 0.0
+- 0.0
+- 0.0
+mask_step_factor: 2
+nphases: 4
+ret_mask_freq: true
+max_imfs: 6
+sift_thresh: 1.0e-08
+nprocesses: 4
+imf_opts:
+  sd_thresh: 0.05
+  env_step_size: 1
+  stop_method: rilling
+envelope_opts:
+  interp_method: mono_pchip
+extrema_opts:
+  pad_width: 2
+  parabolic_extrema: false
+  mag_pad_opts:
+    mode: median
+    stat_length: 1
+  loc_pad_opts:
+    mode: reflect
+    reflect_type: odd
