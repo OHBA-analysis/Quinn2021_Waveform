@@ -36,33 +36,12 @@ def asc2desc(x):
     return asc / len(x)
 
 
-def asc2desc_aug(x):
-    """Ascending to Descending ratio ( A / A+D ) - input should be an augmented cycle."""
-    pt = emd.cycles.cf_peak_sample(x, interp=True)
-    tt = emd.cycles.cf_trough_sample(x, interp=True)
-    if (pt is None) or (tt is None):
-        return np.nan
-    return pt / tt
-
-
 def peak2trough(x):
     """Peak to trough ratio ( P / P+T )."""
     des = emd.cycles.cf_descending_zero_sample(x, interp=True)
     if des is None:
         return np.nan
     return des / len(x)
-
-
-def peak2trough_aug(x):
-    """Peak to trough ratio ( P / P+T ) - input should be an augmented cycle."""
-    asc = emd.cycles.cf_ascending_zero_sample(x, interp=False)
-    if asc is None:
-        return np.nan
-    y = x[asc:]
-    des = emd.cycles.cf_descending_zero_sample(y, interp=True)
-    if (asc is None) or (des is None):
-        return np.nan
-    return des / len(y)
 
 
 def compute_range(x):
@@ -110,8 +89,6 @@ for run, run_name in enumerate(config['recordings']):
 
     C.compute_cycle_metric('asc2desc', imf[:, 5], asc2desc)
     C.compute_cycle_metric('peak2trough', imf[:, 5], peak2trough)
-    C.compute_cycle_metric('asc2desc_aug', imf[:, 5], asc2desc_aug, mode='augmented')
-    C.compute_cycle_metric('peak2trough_aug', imf[:, 5], peak2trough_aug, mode='augmented')
 
     # Extract included subset of cycles
     amp_thresh = np.percentile(IA[:, 5], 25)
