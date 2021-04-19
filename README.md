@@ -1,11 +1,12 @@
 # Within-cycle instantaneous frequency profiles report oscillatory waveform dynamics.
 This repository contains the scripts to run the simulations and analysis from:
 
-[reference]
+Quinn, Andrew J. et al. 2021. ‘Within-Cycle Instantaneous Frequency Profiles Report Oscillatory Waveform Dynamics’. bioRxiv: 2021.04.12.439547. [https://doi.org/10.1101/2021.04.12.439547](https://doi.org/10.1101/2021.04.12.439547)
+
 
 ## Requirements
 
-The LFP data used in this analysis can be freely downloaded from xxxxx (requires free registration).
+The LFP data used in this analysis can be freely downloaded from the [MRC BNDU data portal](https://data.mrc.ox.ac.uk/data-set/instantaneous-frequency-profiles-theta-cycles) (requires free registration).
 
 The original analysis used Python 3.7.6 but should run ok in more recent versions. The package requirements to exactly reproduce the the original analysis are detailed in the `requirements.txt` file in the repository. These can be installed using pip:
 
