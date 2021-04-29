@@ -16,7 +16,7 @@ import os
 import emd
 import numpy as np
 
-from emd_waveform_methods_utils import config
+from emd_waveform_utils import config
 
 import matplotlib.pyplot as plt
 import matplotlib

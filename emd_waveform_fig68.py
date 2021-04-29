@@ -20,7 +20,7 @@ import pandas
 import numpy as np
 from scipy import ndimage
 import matplotlib.pyplot as plt
-from emd_waveform_methods_utils import config
+from emd_waveform_utils import config
 
 import matplotlib
 matplotlib.rc('font', serif=config['fontname'])

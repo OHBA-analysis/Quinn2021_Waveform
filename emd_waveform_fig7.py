@@ -18,7 +18,7 @@ import pandas
 import numpy as np
 from matplotlib import cm
 import matplotlib.pyplot as plt
-from emd_waveform_methods_utils import config
+from emd_waveform_utils import config
 
 
 def decorate(ax, mode='timex', bottom_row=True):

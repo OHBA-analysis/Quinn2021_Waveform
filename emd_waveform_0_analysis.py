@@ -22,7 +22,7 @@ import h5py
 import logging
 import numpy as np
 
-from emd_waveform_methods_utils import config, load_dataset
+from emd_waveform_utils import config, load_dataset
 
 
 def asc2desc(x):
