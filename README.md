@@ -1,7 +1,11 @@
 # Within-cycle instantaneous frequency profiles report oscillatory waveform dynamics.
 This repository contains the scripts to run the simulations and analysis from:
 
-Quinn, Andrew J. et al. 2021. ‘Within-Cycle Instantaneous Frequency Profiles Report Oscillatory Waveform Dynamics’. bioRxiv: 2021.04.12.439547. [https://doi.org/10.1101/2021.04.12.439547](https://doi.org/10.1101/2021.04.12.439547)
+Quinn, A. J., Lopes-dos-Santos, V., Huang, N., Liang, W.-K., Juan, C., Yeh, J.-R., Nobre, A. C., Dupret, D., & Woolrich, M. W. (2021). Within-cycle instantaneous frequency profiles report oscillatory waveform dynamics. Journal of Neurophysiology. [https://doi.org/10.1152/jn.00201.2021](https://doi.org/10.1152/jn.00201.2021)
+
+and the preprint:
+
+Quinn, A. J., Lopes-dos-Santos, V., Huang, N., Liang, W.-K., Juan, C.-H., Yeh, J.-R., Nobre, A. C., Dupret, D., & Woolrich, M. W. (2021). Within-cycle instantaneous frequency profiles report oscillatory waveform dynamics. Cold Spring Harbor Laboratory. [https://doi.org/10.1101/2021.04.12.439547](https://doi.org/10.1101/2021.04.12.439547)
 
 
 ## Requirements
