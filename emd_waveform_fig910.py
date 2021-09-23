@@ -2,7 +2,7 @@
 
 # vim: set expandtab ts=4 sw=4:
 
-#%% -----------------------------------------------------
+# %% -----------------------------------------------------
 #
 # This script loads all six of of the analysed LFP data. It computes the
 # average phase-aligned instantaneous frequency profiles and mean-vectors
@@ -10,7 +10,7 @@
 # plotted up in figure 9 showing the group average shapes and figure 10 showing
 # the PCA-GLM.
 
-#%% -----------------------------------------------------
+# %% -----------------------------------------------------
 # Imports and definitions
 
 import os
@@ -141,7 +141,7 @@ def scatter_kde(x, y):
     plt.scatter(x, y, c=z, s=5, edgecolor='')
 
 
-#%% --------------------------------------------
+# %% --------------------------------------------
 # Load in analysed LFP data
 
 emd.logger.set_up()
@@ -178,7 +178,7 @@ for run, run_name in enumerate(config['recordings']):
         dur[run] = dur[run][goods]
         speed[run] = speed[run][goods]
 
-#%% ---------------------------------------------------------
+# %% ---------------------------------------------------------
 # Create figure 9
 
 plt.figure(figsize=(10, 8))
@@ -205,7 +205,7 @@ plt.xlim(-10, 10)
 plt.ylim(-10, 10)
 for tag in ['top', 'right']:
     plt.gca().spines[tag].set_visible(False)
-plt.plot(0,0,'k.')
+plt.plot(0, 0, 'k.')
 plt.xlabel('Frequency (Hz)')
 plt.ylabel('Frequency (Hz)')
 plt.grid(True)
@@ -218,12 +218,12 @@ scatter_kde(mv.real, mv.imag)
 plt.xlim(-3, 3)
 plt.ylim(-3, 3)
 add_circles(plt.gca(), waves=True, wave_height=.33)
-plt.plot((-0.1, 0.7), (-0.25,-0.25),'k')
-plt.plot((-0.1, 0.7), (0.25,0.25),'k')
-plt.plot((-0.1, -0.1), (-0.25,0.25),'k')
-plt.plot((0.7, 0.7), (-0.25,0.25),'k')
-plt.text(-1,0.1,'2Hz',va='bottom', ha='right', fontsize='large')
-plt.text(-2,0.1,'4Hz',va='bottom', ha='right', fontsize='large')
+plt.plot((-0.1, 0.7), (-0.25, -0.25), 'k')
+plt.plot((-0.1, 0.7), (0.25, 0.25), 'k')
+plt.plot((-0.1, -0.1), (-0.25, 0.25), 'k')
+plt.plot((0.7, 0.7), (-0.25, 0.25), 'k')
+plt.text(-1, 0.1, '2Hz', va='bottom', ha='right', fontsize='large')
+plt.text(-2, 0.1, '4Hz', va='bottom', ha='right', fontsize='large')
 
 mm = ['o', 'o', '+', '+', '*', '*']
 for run in range(6):
@@ -255,7 +255,7 @@ tt = stats.ttest_1samp(mv.imag, 0)
 print('Shape space imaginary axis - 1 sample ttest')
 print(base.format(mv.imag.mean(), mv.imag.std(), mv.shape[0]-1, tt.statistic, tt.pvalue))
 
-#%% ---------------------------------------------
+# %% ---------------------------------------------
 # Run PCA on phase-aligned instantaneous frequency
 
 
@@ -279,7 +279,7 @@ for ii in range(10):
     pc_proj[:, :, ii] = pca.project_score(sc).T + phase_mean
 
 
-#%% ---------------------------------------------------------
+# %% ---------------------------------------------------------
 # OPTIONAL - Compute split-half reproducibility of PCA
 
 run_splits = False  # Default to off as this can take a minute or two
@@ -332,7 +332,7 @@ if run_splits:
     plt.savefig(outname, dpi=300, transparent=True)
 
 
-#%% ---------------------------------------------------------
+# %% ---------------------------------------------------------
 # Compute GLM
 
 shape_glm_config = """
@@ -375,7 +375,7 @@ is_sig = np.abs(tstats) > thresh
 is_sig2 = np.abs(tstats) > thresh2
 
 
-#%% --------------------------------------------------------
+# %% --------------------------------------------------------
 # Create figure 10
 
 

@@ -2,14 +2,14 @@
 
 # vim: set expandtab ts=4 sw=4:
 
-#%% -----------------------------------------------------
+# %% -----------------------------------------------------
 #
 # This script loads the EMD analyses from one run of the LFP data and creates
 # figures 6 and 8. Figure 6 shows a segment of the time-series and associated
 # EMD metrics and figure 8 shows the single cycle representation of around 2000
 # cycles.
 
-#%% -----------------------------------------------------
+# %% -----------------------------------------------------
 # Imports and definitions
 
 import os
@@ -25,7 +25,7 @@ from emd_waveform_utils import config
 import matplotlib
 matplotlib.rc('font', serif=config['fontname'])
 
-#%% ------------------------------------------------------
+# %% ------------------------------------------------------
 
 emd.logger.set_up(level='DEBUG')
 
@@ -50,7 +50,7 @@ edges, bins = emd.spectra.define_hist_bins(2, 128, 128, 'log')
 
 plot_inds = np.arange(7500+1250, 7500+1250+4*1250)
 
-#%% ------------------------------------------
+# %% ------------------------------------------
 # Create graphical abstract
 
 
@@ -69,55 +69,55 @@ plt.rc('figure', titlesize=BIGGER_SIZE)  # fontsize of the figure title
 
 frames = True
 
-def remove_frames(ax, tags=['top','right']):
+def remove_frames(ax, tags=['top', 'right']):
     for tag in tags:
         ax.spines[tag].set_visible(False)
 
 start = 41000
 inds = np.arange(start, start+1250*1).astype(int)
-tt = np.linspace(0,1,len(inds))
+tt = np.linspace(0, 1, len(inds))
 
-plt.figure(figsize=(14,10))
+plt.figure(figsize=(14, 10))
 ax1 = plt.axes([0.05, .775, .125, .1], frameon=frames)
 ax2 = plt.axes([.308, .725, .125, .2], frameon=frames)
 ax3 = plt.axes([.5666, .725, .125, .2], frameon=frames)
 ax4 = plt.axes([.825, .725, .125, .2], frameon=frames)
 ax5 = plt.axes([.06, .35, .2, .125], frameon=frames)
 
-ax1.plot(tt, imf[inds, :].sum(axis=1),'k')
+ax1.plot(tt, imf[inds, :].sum(axis=1), 'k')
 ax1.plot(tt, np.zeros_like(tt)-500, 'k', linewidth=0.5)
-remove_frames(ax1, tags=['top','right','bottom'])
+remove_frames(ax1, tags=['top', 'right', 'bottom'])
 ax1.set_xlim(tt[0], tt[-1])
-ax1.set_xticks([0,0.5,1])
+ax1.set_xticks([0, 0.5, 1])
 ax1.set_xlabel('Time (secs)')
 ax1.set_ylabel(r'Amp ($\mu V$)')
-ax1.spines['left'].set_bounds(-500,500)
+ax1.spines['left'].set_bounds(-500, 500)
 ax1.set_yticks([-500, 0, 500])
 
-remove_frames(ax2, tags=['top','right','bottom','left'])
+remove_frames(ax2, tags=['top', 'right', 'bottom', 'left'])
 ax2.set_xlim(tt[0], tt[-1])
-ax2.set_xticks([0,0.5,1])
+ax2.set_xticks([0, 0.5, 1])
 for ii in range(4):
     ax2.plot(tt, np.zeros_like(tt)-ii*500, 'k', linewidth=0.5)
-    ax2.plot((0,0), (-200-ii*500 ,200-ii*500),'k')
+    ax2.plot((0, 0), (-200-ii*500, 200-ii*500), 'k')
     ax2.text(-.015, 200-ii*500, '200', va='center', ha='right', fontsize=TINY_SIZE)
     ax2.text(-.015, -200-ii*500, '-200', va='center', ha='right', fontsize=TINY_SIZE)
 ax2.set_yticks([])
-ax2.plot(tt, imf[inds, 2:6] - np.arange(0,2000,500)[None, :])
+ax2.plot(tt, imf[inds, 2:6] - np.arange(0, 2000, 500)[None, :])
 ax2.set_ylabel(r'Amp ($\mu V$)', labelpad=20)
 ax2.set_xlabel('Time (secs)')
 
-ip = IP[inds,5]
+ip = IP[inds, 5]
 ip[np.gradient(ip) < -2] =  np.nan
-remove_frames(ax3, tags=['top','right','left'])
+remove_frames(ax3, tags=['top', 'right', 'left'])
 ax3.set_yticks([])
-ax3.plot(tt,ip)
+ax3.plot(tt, ip)
 ax3.set_xlim(tt[0], tt[-1])
-ax3.set_xticks([0,0.5,1])
+ax3.set_xticks([0, 0.5, 1])
 ax3.set_xlabel('Time (secs)')
-ax3.plot(tt, IF[inds,5]-14)
-ax3.plot((0,0), (0,np.pi*2),'k')
-ax3.plot((0,0), (4-14,10-14),'k')
+ax3.plot(tt, IF[inds, 5]-14)
+ax3.plot((0, 0), (0, np.pi*2), 'k')
+ax3.plot((0, 0), (4-14, 10-14), 'k')
 ax3.text(-.015, np.pi*2, r'2$\pi$', va='center', ha='right', fontsize=TINY_SIZE)
 ax3.text(-.015, 0, r'0', va='center', ha='right', fontsize=TINY_SIZE)
 ax3.text(-.015, 10-14, '10', va='center', ha='right', fontsize=TINY_SIZE)
@@ -127,21 +127,21 @@ ax3.text(-.1, 7-14, 'Instantaneous\nFrequency (Hz)', va='center', ha='right', fo
 ax3.text(-.1, np.pi, 'Instantaneous\nPhase (rads)', va='center', ha='right', fontsize=SMALL_SIZE, rotation=90)
 
 inds = np.arange(start, start+1250*4).astype(int)
-tt = np.linspace(0,4,len(inds))
-ax4.fill_between(tt,speed[inds], 0, alpha=0.5)
-ax4.plot((tt[0], tt[-1]), (2,2),'k--')
+tt = np.linspace(0, 4, len(inds))
+ax4.fill_between(tt, speed[inds], 0, alpha=0.5)
+ax4.plot((tt[0], tt[-1]), (2, 2), 'k--')
 
-ii = imf[inds,5]/100 - 3.5
-ax4.plot(tt,ii,'k')
+ii = imf[inds, 5]/100 - 3.5
+ax4.plot(tt, ii, 'k')
 ii[speed[inds] > 2] = np.nan
-ax4.plot(tt,ii, 'r')
+ax4.plot(tt, ii, 'r')
 ax4.set_xlabel('Time (secs)')
 ax4.set_xlim(tt[0], tt[-1])
-ax4.set_xticks([0,1,2,3,4])
+ax4.set_xticks([0, 1, 2, 3, 4])
 ax4.set_yticks([])
-remove_frames(ax4, tags=['top','right','left'])
-ax4.plot((0,0), (0,5), 'k')
-ax4.plot((0,0), (-5.5,-1.5), 'k')
+remove_frames(ax4, tags=['top', 'right', 'left'])
+ax4.plot((0, 0), (0, 5), 'k')
+ax4.plot((0, 0), (-5.5, -1.5), 'k')
 ax4.text(-.03, 0, '0', va='center', ha='right', fontsize=TINY_SIZE)
 ax4.text(-.03, 2, '2', va='center', ha='right', fontsize=TINY_SIZE)
 ax4.text(-.03, 4, '4', va='center', ha='right', fontsize=TINY_SIZE)
@@ -153,80 +153,80 @@ ax4.text(-.4, 2.5, 'Movement\nSpeed (cm/s)', va='center', ha='right', fontsize=S
 
 start = 41000
 inds = np.arange(start, start+1250*1).astype(int)
-tt = np.linspace(0,4,len(inds))
-C = emd.cycles.Cycles(IP[inds,5],compute_timings=True)
-C.compute_cycle_metric('peak', imf[inds,5], emd.cycles.cf_peak_sample)
-C.compute_cycle_metric('desc', imf[inds,5], emd.cycles.cf_descending_zero_sample)
-C.compute_cycle_metric('trough', imf[inds,5], emd.cycles.cf_trough_sample)
+tt = np.linspace(0, 4, len(inds))
+C = emd.cycles.Cycles(IP[inds, 5], compute_timings=True)
+C.compute_cycle_metric('peak', imf[inds, 5], emd.cycles.cf_peak_sample)
+C.compute_cycle_metric('desc', imf[inds, 5], emd.cycles.cf_descending_zero_sample)
+C.compute_cycle_metric('trough', imf[inds, 5], emd.cycles.cf_trough_sample)
 df_abs = C.get_metric_dataframe()
 
-ax5.plot(imf[inds,5], 'k')
-for ii in range(1,len(df_abs)-1):
+ax5.plot(imf[inds, 5], 'k')
+for ii in range(1, len(df_abs)-1):
     st = df_abs['start_sample'].values[ii]
     pk = st +  df_abs['peak'].values[ii]
-    ax5.plot(pk, imf[inds[int(pk)],5], '^r')
+    ax5.plot(pk, imf[inds[int(pk)], 5], '^r')
     tr = st +  df_abs['trough'].values[ii]
-    ax5.plot(tr, imf[inds[int(tr)],5], 'vb')
+    ax5.plot(tr, imf[inds[int(tr)], 5], 'vb')
     asc = st +  df_abs['desc'].values[ii]
-    ax5.plot(asc, imf[inds[int(asc)],5], 'oc')
+    ax5.plot(asc, imf[inds[int(asc)], 5], 'oc')
     desc = st
-    ax5.plot(desc, imf[inds[int(desc)],5], 'om')
+    ax5.plot(desc, imf[inds[int(desc)], 5], 'om')
     if ii == 1:
-        plt.legend(['Oscillation','Peak','Trough','Descending Zero', 'Ascending Zero'], frameon=False, bbox_to_anchor=(0.5, -1), loc='center')
-remove_frames(ax5, tags=['top','right'])
+        plt.legend(['Oscillation', 'Peak', 'Trough', 'Descending Zero', 'Ascending Zero'], frameon=False, bbox_to_anchor=(0.5, -1), loc='center')
+remove_frames(ax5, tags=['top', 'right'])
 ax5.set_xlim(tt[0], tt[-1])
-ax5.set_xticks(np.linspace(0,len(tt),5))
+ax5.set_xticks(np.linspace(0, len(tt), 5))
 ax5.set_xticklabels(np.arange(5))
 ax5.set_xlabel('Time (secs)')
 ax5.set_ylabel(r'Amp ($\mu V$)')
-ax5.spines['left'].set_bounds(-300,300)
+ax5.spines['left'].set_bounds(-300, 300)
 
 ax6 = plt.axes([0.35, 0.42, 0.1, 0.1])
 ax7 = plt.axes([0.35, 0.2, 0.1, 0.2])
 ax8 = plt.axes([0.495, 0.42, 0.1, 0.1])
 ax9 = plt.axes([0.495, 0.2, 0.1, 0.2])
 
-pa = emd.cycles.phase_align(IP[inds,5], IF[inds,5], cycles=C)
-cind = (3,7)
-ax6.plot(imf[inds[C._slice_cache[cind[0]]],5], 'r')
-ax6.plot(imf[inds[C._slice_cache[cind[1]]],5], 'b')
-remove_frames(ax6, tags=['top','right','bottom'])
+pa = emd.cycles.phase_align(IP[inds, 5], IF[inds, 5], cycles=C)
+cind = (3, 7)
+ax6.plot(imf[inds[C._slice_cache[cind[0]]], 5], 'r')
+ax6.plot(imf[inds[C._slice_cache[cind[1]]], 5], 'b')
+remove_frames(ax6, tags=['top', 'right', 'bottom'])
 ax6.set_ylabel(r'Amp ($\mu V$)')
 ax6.set_xticks([])
-ax6.spines['left'].set_bounds(-200,200)
+ax6.spines['left'].set_bounds(-200, 200)
 
-ax7.plot(IF[inds[C._slice_cache[cind[0]]],5], 'r')
-ax7.plot(IF[inds[C._slice_cache[cind[1]]],5], 'b')
-remove_frames(ax7, tags=['top','right'])
+ax7.plot(IF[inds[C._slice_cache[cind[0]]], 5], 'r')
+ax7.plot(IF[inds[C._slice_cache[cind[1]]], 5], 'b')
+remove_frames(ax7, tags=['top', 'right'])
 ax7.set_xlabel('Time (secs)')
 ax7.set_ylabel('Instantaneous\nFrequency (Hz)', rotation=90, fontsize=SMALL_SIZE)
 
-ax8.plot(np.sin(2*np.pi*np.linspace(0,1)),'r')
-ax8.plot(np.sin(2*np.pi*np.linspace(0,1)),'b--')
-remove_frames(ax8, tags=['top','right','bottom'])
+ax8.plot(np.sin(2*np.pi*np.linspace(0, 1)), 'r')
+ax8.plot(np.sin(2*np.pi*np.linspace(0, 1)), 'b--')
+remove_frames(ax8, tags=['top', 'right', 'bottom'])
 ax8.set_ylabel(r'Amp (a.u.)')
 ax8.set_xticks([])
-ax8.spines['left'].set_bounds(-1,1)
+ax8.spines['left'].set_bounds(-1, 1)
 
-ax9.plot(pa[0][:,cind[0]],'r')
-ax9.plot(pa[0][:,cind[1]],'b')
-remove_frames(ax9, tags=['top','right'])
+ax9.plot(pa[0][:, cind[0]], 'r')
+ax9.plot(pa[0][:, cind[1]], 'b')
+remove_frames(ax9, tags=['top', 'right'])
 ax9.set_xlabel('Phase (rads)')
-ax9.set_xticks(np.linspace(0,48,3))
+ax9.set_xticks(np.linspace(0, 48, 3))
 ax9.set_xticklabels(['0', r'$\pi$', r'2$\pi$'])
 
 inds = np.arange(start, start+1250*12).astype(int)
-C = emd.cycles.Cycles(IP[inds,5],compute_timings=True)
-pa, _ = emd.cycles.phase_align(IP[inds,5], IF[inds,5], cycles=C)
+C = emd.cycles.Cycles(IP[inds, 5], compute_timings=True)
+pa, _ = emd.cycles.phase_align(IP[inds, 5], IF[inds, 5], cycles=C)
 pa = pa[:, np.isfinite(pa.mean(axis=0))]
 goods = np.logical_and((pa.min(axis=0) > 3), (pa.mean(axis=0) <10))
 
 ax10 = plt.axes([0.675, 0.25, .1, .25])
-im = ax10.pcolormesh(pa[:,goods].T, vmin=5, vmax=12)
+im = ax10.pcolormesh(pa[:, goods].T, vmin=5, vmax=12)
 cb = plt.colorbar(im)
 cb.set_label('Instantaneous\nFrequency (Hz)')
 ax10.set_xlabel('Phase (rads)')
-ax10.set_xticks(np.linspace(0,48,3))
+ax10.set_xticks(np.linspace(0, 48, 3))
 ax10.set_xticklabels(['0', r'$\pi$', r'2$\pi$'])
 ax10.set_ylabel('Cycles')
 
@@ -256,38 +256,38 @@ cycles = emd.cycles.get_cycle_vector(IP2, return_good=True)
 
 lin_inds = cycles[:, 0] == 1
 inds = cycles[:, 1] == 2
-ax11.plot(np.linspace(0,1,inds.sum()), np.sin(phs[inds,1]))
+ax11.plot(np.linspace(0, 1, inds.sum()), np.sin(phs[inds, 1]))
 inds = cycles[:, 2] == 2
-ax11.plot(np.linspace(0,1,inds.sum()), np.sin(phs[inds,2]))
-remove_frames(ax11, tags=['top','right'])
+ax11.plot(np.linspace(0, 1, inds.sum()), np.sin(phs[inds, 2]))
+remove_frames(ax11, tags=['top', 'right'])
 ax11.set_yticks([-1, 0, 1])
 ax11.set_ylabel('Amp (a.u.)')
-ax11.set_xlim(0,1)
+ax11.set_xlim(0, 1)
 ax11.set_xticks([0, 1])
 ax11.set_title('Motif 1', fontsize=MEDIUM_SIZE)
 ax11.spines['left'].set_bounds(-1, 1)
 
 inds = cycles[:, 3] == 2
-ax12.plot(np.linspace(0,1,inds.sum()), np.sin(phs[inds,3]))
+ax12.plot(np.linspace(0, 1, inds.sum()), np.sin(phs[inds, 3]))
 inds = cycles[:, 4] == 2
-ax12.plot(np.linspace(0,1,inds.sum()), np.sin(phs[inds,4]))
-remove_frames(ax12, tags=['top','right'])
+ax12.plot(np.linspace(0, 1, inds.sum()), np.sin(phs[inds, 4]))
+remove_frames(ax12, tags=['top', 'right'])
 ax12.set_yticks([-1, 0, 1])
-ax12.set_xlim(0,1)
+ax12.set_xlim(0, 1)
 ax12.set_ylabel('Amp (a.u.)')
 ax12.set_xticks([0, 1])
 ax12.set_title('Motif 2', fontsize=MEDIUM_SIZE)
 ax12.spines['left'].set_bounds(-1, 1)
 
 inds = cycles[:, 5] == 2
-ax13.plot(np.linspace(0,1,inds.sum()), np.sin(phs[inds,5]))
+ax13.plot(np.linspace(0, 1, inds.sum()), np.sin(phs[inds, 5]))
 inds = cycles[:, 6] == 2
-ax13.plot(np.linspace(0,1,inds.sum()), np.sin(phs[inds,6]))
-remove_frames(ax13, tags=['top','right'])
+ax13.plot(np.linspace(0, 1, inds.sum()), np.sin(phs[inds, 6]))
+remove_frames(ax13, tags=['top', 'right'])
 ax13.set_xlabel('Cycle Duration', fontsize=SMALL_SIZE)
 ax13.set_yticks([-1, 0, 1])
 ax13.set_ylabel('Amp (a.u.)')
-ax13.set_xlim(0,1)
+ax13.set_xlim(0, 1)
 ax13.set_xticks([0, 1])
 ax13.set_title('Motif 3', fontsize=MEDIUM_SIZE)
 ax13.spines['left'].set_bounds(-1, 1)
@@ -298,7 +298,7 @@ plt.savefig(outname, dpi=300, transparent=True)
 plt.style.use('default')
 
 
-#%% ------------------------------------------
+# %% ------------------------------------------
 # Create figure 5 time-series
 
 width = config['3col_width'] / 25.4
@@ -341,7 +341,7 @@ plt.plot([1.9*1250, 2.9*1250], [800, 800], 'k')
 plt.text(2.4*1250, 825, '1 Second', horizontalalignment='center',
          verticalalignment='bottom', fontsize=fontsize_side)
 
-## Plot IMFs
+# Plot IMFs
 step = -500
 labels = ['IMF1', 'IMF2', 'IMF3', 'IMF4', 'IMF5', 'IMF6', 'IMF7+']
 for ii in range(7):
@@ -415,7 +415,7 @@ plt.plot([-15, len(inds)], (-4601, -4601), color=[.7, .7, .7], linewidth=.5)
 indx = np.linspace(0, 3, 4)*1e2 - 4600
 indx_lab = np.round(np.linspace(0, 3, 4), 2).astype(int)
 for ii in range(4):
-    if plot_horiz and sparse_horiz is False :
+    if plot_horiz and sparse_horiz is False:
         plt.plot([-10, len(inds)], (indx[ii], indx[ii]), color=[.7, .7, .7], linewidth=horiz_width)
     elif  ii == 0:
         plt.plot([-10, len(inds)], (indx[ii], indx[ii]), color=[.7, .7, .7], linewidth=horiz_width)
@@ -429,11 +429,11 @@ plt.text(-300, indx[1:3].mean(), 'Instantaneous\nFrequency\nStd-Dev', fontsize=f
 outname = os.path.join(config['figdir'], 'emd_fig6_real_sift.png')
 plt.savefig(outname, dpi=300, transparent=True)
 
-#%% --------------------------------------------------------------------
+# %% --------------------------------------------------------------------
 # Create figure 5 - Supplemental
 inds2 = inds[:600]
 
-tx = np.linspace(0,2,512)
+tx = np.linspace(0, 2, 512)
 
 plt.figure(figsize=(14, 10))
 plt.subplots_adjust(hspace=0.3)
@@ -446,7 +446,7 @@ plt.plot(tx, b)
 plt.plot(tx, a+b-3)
 plt.ylim(-5, 3)
 plt.legend(['Base Signal', 'High Freq Signal', 'Summed Signal'], frameon=False, fontsize='large')
-for tag in ['top','right','left']:
+for tag in ['top', 'right', 'left']:
     plt.gca().spines[tag].set_visible(False)
 plt.yticks([])
 plt.title('Simulation A')
@@ -459,19 +459,19 @@ plt.plot(tx, b)
 plt.plot(tx, a+b-3)
 plt.ylim(-5, 3)
 plt.legend(['Base Signal', 'Harmonic', 'Summed Signal'], frameon=False, fontsize='large')
-for tag in ['top','right','left']:
+for tag in ['top', 'right', 'left']:
     plt.gca().spines[tag].set_visible(False)
 plt.yticks([])
 plt.title('Simulation B')
 plt.xlabel('Time (Seconds)')
 
 plt.subplot(212)
-plt.plot(imf[inds2,:].sum(axis=1), label='Raw Signal')
-plt.plot(imf[inds2,5]-500, label='IMF-6')
-plt.plot(imf[inds2,4]-500, label='IMF-5')
-plt.plot(imf[inds2,4]+imf[inds2,5]-1000,label='IMF-5 + IMF-6')
+plt.plot(imf[inds2, :].sum(axis=1), label='Raw Signal')
+plt.plot(imf[inds2, 5]-500, label='IMF-6')
+plt.plot(imf[inds2, 4]-500, label='IMF-5')
+plt.plot(imf[inds2, 4]+imf[inds2, 5]-1000, label='IMF-5 + IMF-6')
 plt.legend(frameon=False, fontsize='large')
-for tag in ['top','right','left']:
+for tag in ['top', 'right', 'left']:
     plt.gca().spines[tag].set_visible(False)
 plt.yticks([])
 plt.xticks(np.arange(5)*125, np.arange(5)*100)
@@ -481,7 +481,7 @@ plt.title('Real Data')
 outname = os.path.join(config['figdir'], 'emd_fig6_supplemental_zoom.png')
 plt.savefig(outname, dpi=300, transparent=True)
 
-#%% --------------------------------------------------------------------
+# %% --------------------------------------------------------------------
 # Create figure 6 - spectra
 
 edges, bins = emd.spectra.define_hist_bins(2, 35, 64, 'linear')
@@ -531,7 +531,7 @@ outname = os.path.join(config['figdir'], 'emd_fig6_real_sift_spec.png')
 plt.savefig(outname, dpi=300, transparent=True)
 
 
-#%% --------------------------------------------------------------------
+# %% --------------------------------------------------------------------
 # Create Figure 8
 
 def decorate_ax(ax):
@@ -646,7 +646,7 @@ plt.title('Instantaneous\nFrequency (Hz)', fontsize=9)
 outname = os.path.join(config['figdir'], 'emd_fig8_real_phasealign.png')
 plt.savefig(outname, dpi=300, transparent=True)
 
-#%% --------------------------------------------------------------------
+# %% --------------------------------------------------------------------
 # Create Figure 8 - REVISED
 
 
@@ -693,11 +693,11 @@ plt.figure(figsize=(width*3, height*2))
 # Plot control point segments
 plt.axes([.1, .1, .2, col_height])
 #plt.pcolormesh(segments[I2, :])
-plt.plot(ctrl[I2,1],np.arange(len(I2)),'^')
-plt.plot(ctrl[I2,2],np.arange(len(I2)),'x')
-plt.plot(ctrl[I2,3],np.arange(len(I2)),'v')
-plt.plot(ctrl[I2,4],np.arange(len(I2)),'.')
-plt.legend(['Peak','Desc','Trough','Asc'], frameon=False, loc='center', bbox_to_anchor=(0.4, 0.2, 1, 1))
+plt.plot(ctrl[I2, 1], np.arange(len(I2)), '^')
+plt.plot(ctrl[I2, 2], np.arange(len(I2)), 'x')
+plt.plot(ctrl[I2, 3], np.arange(len(I2)), 'v')
+plt.plot(ctrl[I2, 4], np.arange(len(I2)), '.')
+plt.legend(['Peak', 'Desc', 'Trough', 'Asc'], frameon=False, loc='center', bbox_to_anchor=(0.4, 0.2, 1, 1))
 plt.xticks(np.linspace(0, 200, 5), (np.linspace(0, 200, 5)/sample_rate*1000).astype(int))
 plt.xlabel('Time (ms)')
 plt.xlim(0, 250)
@@ -706,11 +706,11 @@ plt.ylabel('# Cycle (Sorted by duration)')
 decorate_ax(plt.gca())
 
 plt.axes([.1, .6, .2, top_height-0.05])
-plt.plot((0.5,0.5),(0,800),'k--')
+plt.plot((0.5, 0.5), (0, 800), 'k--')
 plt.hist(ctrl_mets[0][I], np.linspace(-1, 1), alpha=.5)
 plt.hist(ctrl_mets[1][I], np.linspace(-1, 1), alpha=.5)
 #plt.xticks(np.linspace(-.25, .25, 3))
-plt.legend(['Sinusoid','Peak/Trough', 'Ascent/Descent'], frameon=False,
+plt.legend(['Sinusoid', 'Peak/Trough', 'Ascent/Descent'], frameon=False,
            fontsize=10, loc='center', bbox_to_anchor=(0.5, 0.4, 1, 1))
 decorate_ax(plt.gca())
 plt.xlim(0, 1)
@@ -728,8 +728,8 @@ plt.xlabel('Time (ms)')
 plt.xlim(0, 250)
 
 plt.axes([.425, .6, .2, top_height/2])
-mn = np.nanmean(instfreq[:,I], axis=1)
-sem = np.nanstd(instfreq[:,I], axis=1)
+mn = np.nanmean(instfreq[:, I], axis=1)
+sem = np.nanstd(instfreq[:, I], axis=1)
 sem = sem / np.sqrt(np.sum(np.isnan(instfreq[:, I])==False, axis=1))
 plt.errorbar(np.arange(313), mn, yerr=sem, errorevery=4)
 decorate_ax(plt.gca())
@@ -739,13 +739,13 @@ plt.legend(['Avg IF (std-error of mean)'], loc='center', bbox_to_anchor=(0.3, 0.
 plt.ylabel('Instantaneous\nFrequency (Hz)')
 
 plt.axes([.425, .8, .2, 0.075])
-plt.plot(np.nanmean(waveform[:,I], axis=1),'k')
-for tag in ['top','right','bottom']:
+plt.plot(np.nanmean(waveform[:, I], axis=1), 'k')
+for tag in ['top', 'right', 'bottom']:
     plt.gca().spines[tag].set_visible(False)
 plt.xticks([])
-plt.ylim(-200,200)
+plt.ylim(-200, 200)
 plt.xlim(0, 250)
-plt.legend(['Avg Waveform'],loc='center', bbox_to_anchor=(0.3, 0.5, 1, 1), frameon=False)
+plt.legend(['Avg Waveform'], loc='center', bbox_to_anchor=(0.3, 0.5, 1, 1), frameon=False)
 plt.ylabel(r'Amplitude ($\mu$V)')
 plt.title('Cycle-Onset Alignment\n\n')#\nInstantaneous. Frequency\n(std-error of mean)')
 
@@ -757,9 +757,9 @@ plt.xlabel('Theta Phase (rads)')
 decorate_ax(plt.gca())
 
 plt.axes([.75, .6, .2, top_height/2])
-mn = np.nanmean(pa[:,I], axis=1)
-sem = np.nanstd(pa[:,I], axis=1) / np.sqrt(I.shape[0])
-plt.errorbar(np.arange(48),mn, yerr=sem, errorevery=2)
+mn = np.nanmean(pa[:, I], axis=1)
+sem = np.nanstd(pa[:, I], axis=1) / np.sqrt(I.shape[0])
+plt.errorbar(np.arange(48), mn, yerr=sem, errorevery=2)
 plt.xlim(0, 48)
 decorate_ax(plt.gca())
 plt.xticks(np.arange(5)*12, ['-pi', '-pi/2', '0', 'pi/2', 'pi'])
@@ -767,13 +767,13 @@ plt.ylabel('Instantaneous\nFrequency (Hz)')
 plt.legend(['Avg IF (std-error of mean)'], loc='center', bbox_to_anchor=(0.3, 0.5, 1, 1), frameon=False)
 
 plt.axes([.75, .8, .2, 0.075])
-plt.plot(196*np.sin(2*np.pi*np.linspace(0,1,48)),'k')
-for tag in ['top','right','bottom']:
+plt.plot(196*np.sin(2*np.pi*np.linspace(0, 1, 48)), 'k')
+for tag in ['top', 'right', 'bottom']:
     plt.gca().spines[tag].set_visible(False)
 plt.xticks([])
 plt.xlim(0)
-plt.ylim(-200,200)
-plt.legend(['Avg Waveform'],loc='center', bbox_to_anchor=(0.3, 0.5, 1, 1), frameon=False)
+plt.ylim(-200, 200)
+plt.legend(['Avg Waveform'], loc='center', bbox_to_anchor=(0.3, 0.5, 1, 1), frameon=False)
 plt.ylabel(r'Amplitude ($\mu$V)')
 plt.title('Phase Alignment\n\n')#\nInstantaneous. Frequency\n(std-error of mean)')
 
