@@ -98,8 +98,8 @@ for ii in range(basis.shape[1]):
     plt.plot(xx, np.sin(phs[inds, ii]), color=cols[ii, :], linewidth=2)
     plt.plot(xx, -np.ones_like(np.arange(samples_per_cycle)), 'k', linewidth=.5)
     plt.text(xx[0]+samples_per_cycle/2, 1.2, titles[column[ii]], horizontalalignment='center', fontsize=14)
-    if ii == 0:
-        plt.text(xx[0]+samples_per_cycle/2, -1.4, 'Time (s)', horizontalalignment='center', fontsize=11)
+    #if ii == 0:
+    plt.text(xx[0]+samples_per_cycle/2, -1.4, 'Time (s)', horizontalalignment='center', fontsize=11)
     plt.ylabel('Example Waveforms')
 
 # Instantaneous phases on row-2
@@ -109,6 +109,7 @@ for tag in ['top', 'right', 'bottom']:
     plt.gca().spines[tag].set_visible(False)
 plt.xticks(xt, xt_seconds)
 plt.ylabel('Phase (radians)')
+plt.yticks([0, np.pi, 2*np.pi], ['0', '$\\pi$', '2$\\pi$'])
 for ii in range(basis.shape[1]):
     inds = cycles[:, ii] == 2
     lp = phs[lin_inds, 0]
@@ -117,9 +118,9 @@ for ii in range(basis.shape[1]):
     plt.plot(xx, lp-lp[0], 'k:')
     plt.plot(xx, nlp-nlp[0], color=cols[ii, :], linewidth=2)
     plt.plot(xx, np.zeros_like(np.arange(samples_per_cycle)), 'k', linewidth=.5)
-    if ii == 0:
-        plt.text(xx[0]+samples_per_cycle/2, -1.4, 'Time (s)',
-                 horizontalalignment='center', fontsize=11, verticalalignment='bottom')
+    #if ii == 0:
+    plt.text(xx[0]+samples_per_cycle/2, -1.4, 'Time (s)',
+             horizontalalignment='center', fontsize=11, verticalalignment='bottom')
 
 # Instantaneous frequencies in row-3
 plt.subplot(413)
@@ -127,22 +128,22 @@ for tag in ['top', 'right', 'bottom']:
     plt.gca().spines[tag].set_visible(False)
 lin_inds = cycles[:, 0] == 1
 plt.xticks(xt, xt_phase)
-plt.ylabel('Frequency (Hz)')
+plt.ylabel('Instantaneous\nFrequency (Hz)')
 for ii in range(basis.shape[1]):
     inds = cycles[:, ii] == 2
     xx = np.arange(samples_per_cycle)+col_sep*column[ii]
     plt.plot(xx, pa[0], 'k:')
     plt.plot(xx, pa[ii], color=cols[ii, :], linewidth=2)
     plt.plot(xx, 0.75*np.ones_like(np.arange(samples_per_cycle)), 'k', linewidth=.5)
-    if ii == 0:
-        plt.text(xx[0]+samples_per_cycle/2, 0.65, 'Phase (rads)',
-                 horizontalalignment='center', fontsize=11, verticalalignment='bottom')
+    #if ii == 0:
+    plt.text(xx[0]+samples_per_cycle/2, 0.65, 'Phase (rads)',
+             horizontalalignment='center', fontsize=11, verticalalignment='bottom')
 
 # Control points on row-4
 plt.subplot(414)
 for tag in ['top', 'right']:
     plt.gca().spines[tag].set_visible(False)
-xtt = np.tile(np.arange(4, samples_per_cycle, samples_per_cycle/4)+3, 4) + np.repeat(np.arange(4)*col_sep, 4)
+xtt = np.tile(np.arange(4, samples_per_cycle, samples_per_cycle/4)+60, 4) + np.repeat(np.arange(4)*col_sep, 4)
 xtl = np.tile(['Peak', 'Trough', 'Ascent', 'Descent'], 4)
 plt.xticks(xtt, xtl, rotation=45)
 plt.ylabel('Proportion of\ncycle')
@@ -155,6 +156,8 @@ for ii in range(basis.shape[1]):
         col_step = 0
     else:
         col_step = 1
+    if column2[ii] == 2:
+        xinds += 30
 
     pk_time = c[2] / samples_per_cycle
     plt.bar(xinds[0+col_step] + col_sep*column[ii], pk_time, width=width, color=cols[ii, :])

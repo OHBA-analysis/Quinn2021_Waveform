@@ -84,7 +84,7 @@ cols = cm.Dark2(np.linspace(0, 1, 8))
 lw = 3
 
 plt.figure(figsize=(width*2, height*2))
-plt.subplots_adjust(hspace=0.3, wspace=0.4, top=0.95, bottom=0.07, right=.975, left=.075)
+plt.subplots_adjust(hspace=0.3, wspace=0.4, top=0.95, bottom=0.07, right=.975, left=.085)
 for ii in range(8):
     ind = np.floor(ii/2)*6 + 1
     if ii % 2 == 1:
@@ -112,13 +112,14 @@ for ii in range(8):
     ax1.plot(imf[cycle_slice, :].sum(axis=1), color=[.8, .8, .8])
     ax1.plot(F['zc_waveform'][:, cycle_inds[ii]], linewidth=lw, color=cols[ii, :])
     ax1.set_xlim(0, 200)
+    ax1.set_ylabel(r'Amplitude ($\mu$V)')
     decorate(ax1, bottom_row=(ii in [6, 7]), mode='timex')
     if ii == 0 or ii == 1:
         ax1.set_title('Theta cycle')
 
     ax2.plot(F['pa'][:, cycle_inds[ii]], linewidth=lw, color=cols[ii, :])
     ax2.set_ylim(3.5, 12.5)
-    ax2.set_ylabel('Inst. Freq (Hz)')
+    ax2.set_ylabel('Instantaneous Frequency (Hz)')
     decorate(ax2, bottom_row=(ii in [6, 7]), mode='phasex')
     if ii == 0 or ii == 1:
         ax2.set_title('Phase-aligned IF')
@@ -133,6 +134,7 @@ for ii in range(8):
     ax3.set_ylim(-1.66, 1.66)
     ax3.set_yticks(np.linspace(-1, 1, 3))
     ax3.spines['left'].set_bounds(-1, 1)
+    ax3.set_ylabel(r'Amplitude (norm)')
     if ii == 0 or ii == 1:
         ax3.set_title('Normalised Waveform')
 

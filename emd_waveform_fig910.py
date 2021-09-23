@@ -182,7 +182,7 @@ for run, run_name in enumerate(config['recordings']):
 # Create figure 9
 
 plt.figure(figsize=(10, 8))
-plt.axes([.1, .25, .2, .5])
+plt.axes([.1, .45, .2, .5])
 linest = [':', ':', '--', '--', '-.', '-.']
 for run in range(6):
     plt.plot(pa[run].mean(axis=1), color=[.8, .8, .8], linestyle=linest[run])
@@ -195,6 +195,20 @@ for tag in ['top', 'right']:
     plt.gca().spines[tag].set_visible(False)
 plt.grid(True)
 
+plt.axes([.1, .1, .2, .24])
+phi = np.cos(np.linspace(0, 2*np.pi, 48)) + 1j * np.sin(np.linspace(0, 2*np.pi, 48))
+phi2 = 8.828 * phi
+plt.plot(phi2.real, phi2.imag, 'k:')
+phi1 = np.concatenate(pa, axis=1).mean(axis=1) * phi
+plt.plot(phi1.real, phi1.imag, 'k')
+plt.xlim(-10, 10)
+plt.ylim(-10, 10)
+for tag in ['top', 'right']:
+    plt.gca().spines[tag].set_visible(False)
+plt.plot(0,0,'k.')
+plt.xlabel('Frequency (Hz)')
+plt.ylabel('Frequency (Hz)')
+plt.grid(True)
 
 ax = plt.axes([.35, .1, .64, .8], frameon=False)
 plt.xticks([])
@@ -204,6 +218,12 @@ scatter_kde(mv.real, mv.imag)
 plt.xlim(-3, 3)
 plt.ylim(-3, 3)
 add_circles(plt.gca(), waves=True, wave_height=.33)
+plt.plot((-0.1, 0.7), (-0.25,-0.25),'k')
+plt.plot((-0.1, 0.7), (0.25,0.25),'k')
+plt.plot((-0.1, -0.1), (-0.25,0.25),'k')
+plt.plot((0.7, 0.7), (-0.25,0.25),'k')
+plt.text(-1,0.1,'2Hz',va='bottom', ha='right', fontsize='large')
+plt.text(-2,0.1,'4Hz',va='bottom', ha='right', fontsize='large')
 
 mm = ['o', 'o', '+', '+', '*', '*']
 for run in range(6):
@@ -213,8 +233,27 @@ cbax = plt.axes([.4, .6, .01, .3])
 cb = plt.colorbar(ax=ax, cax=cbax)
 cb.set_label('Proportion of cycles')
 
+ax = plt.axes([.4, 0.075, .16, .2])
+add_circles(plt.gca(), waves=False, wave_height=.33)
+plt.xlim(-0.1, 0.7)
+plt.ylim(-0.25, 0.25)
+for run in range(6):
+    mv = emd.cycles.mean_vector(np.linspace(0, 2*np.pi, 48), pa[run].mean(axis=1)[:, None])
+    plt.plot(mv.real, mv.imag, mm[run], color=[0.8, .2, .2])
+
 outname = os.path.join(config['figdir'], 'emd_fig9_groupsummary.png')
-plt.savefig(outname, dpi=300, transparent=True)
+plt.savefig(outname, dpi=300, transparent=False)
+
+# Run t-tests
+
+base = 'M={0}, SD={1}, t({2})={3}, p={4}'
+tt = stats.ttest_1samp(mv.real, 0)
+print('Shape space real axis - 1 sample ttest')
+print(base.format(mv.real.mean(), mv.real.std(), mv.shape[0]-1, tt.statistic, tt.pvalue))
+
+tt = stats.ttest_1samp(mv.imag, 0)
+print('Shape space imaginary axis - 1 sample ttest')
+print(base.format(mv.imag.mean(), mv.imag.std(), mv.shape[0]-1, tt.statistic, tt.pvalue))
 
 #%% ---------------------------------------------
 # Run PCA on phase-aligned instantaneous frequency

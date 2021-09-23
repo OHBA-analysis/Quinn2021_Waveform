@@ -84,6 +84,22 @@ IP_nonlinear, IF_nonlinear, IA_nonlinear = emd.spectra.frequency_transform(imf_n
 def my_range(x):
     return x.max() - x.min()
 
+def asc2desc(x):
+    """Ascending to Descending ratio ( A / A+D )."""
+    pt = emd.cycles.cf_peak_sample(x, interp=True)
+    tt = emd.cycles.cf_trough_sample(x, interp=True)
+    if (pt is None) or (tt is None):
+        return np.nan
+    asc = pt + (len(x) - tt)
+    desc = tt - pt
+    return asc / len(x)
+
+def peak2trough(x):
+    """Peak to trough ratio ( P / P+T )."""
+    des = emd.cycles.cf_descending_zero_sample(x, interp=True)
+    if des is None:
+        return np.nan
+    return des / len(x)
 
 Cl = emd.cycles.Cycles(IP_linear[:, 2])
 Cl.compute_cycle_metric('max_amp', IA_linear[:, 2], np.max)
@@ -94,6 +110,8 @@ Cn = emd.cycles.Cycles(IP_nonlinear[:, 2])
 Cn.compute_cycle_metric('max_amp', IA_nonlinear[:, 2], np.max)
 Cn.compute_cycle_metric('max_if', IF_nonlinear[:, 2], np.max)
 Cn.compute_cycle_metric('if_range', IF_nonlinear[:, 2], my_range)
+Cn.compute_cycle_metric('asc2desc', imf_nonlinear[:, 2], asc2desc)
+Cn.compute_cycle_metric('peak2trough', imf_nonlinear[:, 2], peak2trough)
 
 conditions = ['is_good==1', 'max_amp>0.04', 'if_range<8', 'max_if<18']
 pa_linear, phase_x = emd.cycles.phase_align(IP_linear[:, 2], IF_linear[:, 2],
@@ -101,6 +119,7 @@ pa_linear, phase_x = emd.cycles.phase_align(IP_linear[:, 2], IF_linear[:, 2],
 
 pa_nonlinear, phase_x = emd.cycles.phase_align(IP_nonlinear[:, 2], IF_nonlinear[:, 2],
                                                cycles=Cn.iterate(conditions=conditions))
+df_nonlinear = Cn.get_metric_dataframe(conditions=conditions)
 
 #%% --------------------------------------------------
 # Time-frequency transform
@@ -126,7 +145,7 @@ cwt_linear = sails.wavelet.morlet(x_linear[:, 0], bins, sample_rate, normalise='
 cwt_nonlinear = sails.wavelet.morlet(x_nonlinear[:, 0], bins, sample_rate, normalise='simple', ret_mode='amplitude')
 
 #%% --------------------------------------------------
-# FIGURE 2 - Example system with time-frequency transforms
+# FIGURE 3 - Example system with time-frequency transforms
 
 
 def decorate_ax(ax):
@@ -151,15 +170,22 @@ plt.yticks([])
 plt.plot(x_nonlinear[inds]+0.5, 'k')
 plt.plot(imf_nonlinear[inds, 2:].sum(axis=1)-0.25, 'g')
 plt.text(-50, 1, 'Cycle #', verticalalignment='center', horizontalalignment='right')
-plt.text(-50, .8, 'Signal', verticalalignment='center', horizontalalignment='right')
-plt.text(-50, -.4, 'IMF-2+', verticalalignment='center', horizontalalignment='right')
+plt.text(-50, 0.5, 'Signal', verticalalignment='center', horizontalalignment='right')
+plt.text(-50, -.2, 'IMF-3', verticalalignment='center', horizontalalignment='right')
+
 
 # Instantaneous Phase
 ip = IP_nonlinear[inds, 2]
+bad_cycles = np.logical_or(np.diff(ip)<-3, goods[inds[:-1]]==False)
+bad_cycles = np.r_[bad_cycles, True]
+bad_cycles = goods[inds[:-1]]==False
+bad_cycles = np.r_[bad_cycles, True]
+
 ip[np.where(np.diff(ip)<-3)[0]] = np.nan
 to_plot = ip/15 - 1.15
 plt.plot(to_plot)
-to_plot[:np.where(np.isnan(to_plot))[0][17]] = np.nan
+#to_plot[:np.where(np.isnan(to_plot))[0][17]] = np.nan
+to_plot[bad_cycles==False] = np.nan
 plt.plot(to_plot, 'r')
 mn = np.nanmin(to_plot)
 mx = np.nanmax(to_plot)
@@ -167,15 +193,17 @@ plt.plot([-25, -25], [mn, mx], 'k')
 plt.plot([-35, len(inds)], [mx, mx], color=[.8, .8, .8], linewidth=.5)
 plt.plot([-35, len(inds)], [np.mean((mn, mx)), np.mean((mn, mx))], color=[.8, .8, .8], linewidth=.5)
 plt.plot([-35, len(inds)], [mn, mn], color=[.8, .8, .8], linewidth=.5)
-plt.text(-50, mx, 'pi', verticalalignment='center', horizontalalignment='right')
-plt.text(-50, np.mean((mn, mx)), '0', verticalalignment='center', horizontalalignment='right')
-plt.text(-50, mn, '-pi', verticalalignment='center', horizontalalignment='right')
+plt.text(-30, mx, 'pi', verticalalignment='center', horizontalalignment='right')
+plt.text(-30, np.mean((mn, mx)), '0', verticalalignment='center', horizontalalignment='right')
+plt.text(-30, mn, '-pi', verticalalignment='center', horizontalalignment='right')
+plt.text(-105, np.mean((mn, mx)), 'Instantaneous\nPhase (rads)', ha='center', va='center', rotation=0)
 
 # Instantanous Frequency
 frange = emd._cycles_support.project_cycles_to_samples(Cn.metrics['if_range'], Cn.cycle_vect)[:, 0]
-iif = IF_nonlinear[:, 2].copy()
-iif[goods==0] = np.nan
-to_plot = iif[inds]/20 - 2.15
+iif = IF_nonlinear[inds, 2].copy()
+#iif[goods==0] = np.nan
+iif[bad_cycles] = np.nan
+to_plot = iif/20 - 2.15
 plt.plot(to_plot)
 freq_range = np.array([8, 12, 16])
 freq_range_conv = freq_range/20 - 2.2
@@ -187,8 +215,9 @@ plt.plot([-35, len(inds)], [mx, mx], color=[.8, .8, .8], linewidth=.5)
 plt.plot([-35, len(inds)], [np.mean((mn, mx)), np.mean((mn, mx))], color=[.8, .8, .8], linewidth=.5)
 plt.plot([-35, len(inds)], [mn, mn], color=[.8, .8, .8], linewidth=.5)
 for ii in range(3):
-    plt.text(-50, freq_range_conv[ii], '{0}Hz'.format(freq_range[ii]),
+    plt.text(-30, freq_range_conv[ii], '{0}Hz'.format(freq_range[ii]),
              verticalalignment='center', horizontalalignment='right')
+plt.text(-105, freq_range_conv[1], 'Instantaneous\nFrequency (Hz)', ha='center', va='center', rotation=0)
 
 # Cycle Boundaries
 yl = plt.ylim()
@@ -196,7 +225,7 @@ cycle_bounds = np.where(np.diff(Cn.cycle_vect[inds, 0])>.5)[0]
 for ii in range(len(cycle_bounds)):
     plt.plot([cycle_bounds[ii], cycle_bounds[ii]], [-2.2, 1.4], color=[.8, .8, .8], linewidth=.5)
     if ii < len(cycle_bounds)-1:
-        plt.text( (cycle_bounds[ii]+cycle_bounds[ii+1])/2, 1.33, str(ii+1), horizontalalignment='center')
+        plt.text( (cycle_bounds[ii]+cycle_bounds[ii+1])/2, 1, str(ii+1), horizontalalignment='center')
 plt.ylim(yl)
 plt.xlim(-55, 896)
 
@@ -239,7 +268,7 @@ outname = os.path.join(config['figdir'], 'emd_fig3_simu_decomp.png')
 plt.savefig(outname, dpi=300, transparent=True)
 
 #%% --------------------------------------------------
-# FIGURE 3 - PHASE ALIGNMENT IN SIMULATION
+# FIGURE 4 - PHASE ALIGNMENT IN SIMULATION
 
 # Get temporally aligned waveforms and instantanous frequencies
 waveform_linear = np.zeros((100, Cl.ncycles))*np.nan
@@ -261,7 +290,6 @@ for ii, inds in Cn.iterate(conditions=conditions):
 
 ctrl_nonlinear = emd.cycles.get_control_points(imf_nonlinear[:, 2], Cn.iterate(conditions=conditions), interp=True)
 ctrl_mets_nonlinear = emd.cycles.get_control_point_metrics(ctrl_nonlinear)
-
 
 I = np.argsort(ctrl_nonlinear[:, 4])[::-1]
 segments = np.zeros((ctrl_nonlinear.shape[0], 60))*np.nan
@@ -354,7 +382,120 @@ outname = os.path.join(config['figdir'], 'emd_fig4_simu_phasealign.png')
 plt.savefig(outname, dpi=300, transparent=True)
 
 #%% --------------------------------------------------
-# FIGURE 4 - SHAPE COMPARISON
+# FIGURE 4 - PHASE ALIGNMENT IN SIMULATION : REVISED
+I2 = I[::5]
+
+width = config['2col_width'] / 25.4
+height = config['3col_width'] / 25.4
+
+col_height = 0.45
+top_height = 0.3
+
+# Figure start
+plt.figure(figsize=(width*3, height*2))
+
+# Plot control point segments
+plt.axes([.1, .1, .2, col_height])
+#plt.pcolormesh(segments[I2, :])
+plt.plot(ctrl_nonlinear[I2,1],np.arange(len(I2)),'^')
+plt.plot(ctrl_nonlinear[I2,2],np.arange(len(I2)),'x')
+plt.plot(ctrl_nonlinear[I2,3],np.arange(len(I2)),'v')
+plt.plot(ctrl_nonlinear[I2,4],np.arange(len(I2)),'.')
+plt.legend(['Peak','Desc','Trough','Asc'], frameon=False, loc='center', bbox_to_anchor=(0.4, 0.2, 1, 1))
+plt.xticks(np.linspace(0, 64, 5), (np.linspace(0, 125, 5)).astype(int))
+plt.xlabel('Time (ms)')
+plt.xlim(0, 64)
+plt.ylim(0, len(I2))
+plt.ylabel('# Cycle (Sorted by duration)')
+decorate_ax(plt.gca())
+
+plt.axes([.1, .6, .2, top_height-0.05])
+plt.plot((0.5,0.5),(0,800),'k--')
+#plt.hist(ctrl_mets_nonlinear[0][I], np.linspace(-1, 1), alpha=.5)
+#plt.hist(ctrl_mets_nonlinear[1][I], np.linspace(-1, 1), alpha=.5)
+plt.hist(df_nonlinear['peak2trough'].values, np.linspace(0, 1), alpha=0.5)
+plt.hist(df_nonlinear['asc2desc'].values, np.linspace(0, 1), alpha=0.5)
+#plt.xticks(np.linspace(-.25, .25, 3))
+plt.legend(['Sinusoid','Peak/Trough', 'Ascent/Descent'], frameon=False,
+           fontsize=10, loc='center', bbox_to_anchor=(0.5, 0.4, 1, 1))
+decorate_ax(plt.gca())
+plt.xlim(1/3, 2/3)
+plt.ylim(0, 250)
+plt.title('Control-Point Ratios\n')
+plt.xlabel('Ratio')
+plt.ylabel('Num Cycles')
+
+# Plot temporally aligned instantaneous frequency
+plt.axes([.425, .1, .2, col_height])
+plt.imshow(instfreq_nonlinear[:64, I2].T, interpolation='nearest', vmin=6, vmax=14, aspect='auto', origin='lower')
+decorate_ax(plt.gca())
+plt.xticks(np.linspace(0, 64, 5), (np.linspace(0, 125, 5)).astype(int))
+plt.xlabel('Time (ms)')
+plt.xlim(0, 64)
+
+plt.axes([.425, .6, .2, top_height/2])
+mn = np.nanmean(instfreq_nonlinear[:,I], axis=1)
+sem = np.nanstd(instfreq_nonlinear[:,I], axis=1)
+sem = sem / np.sqrt(np.sum(np.isnan(instfreq_nonlinear[:, I])==False, axis=1))
+plt.errorbar(np.arange(100), mn, yerr=sem, errorevery=4)
+decorate_ax(plt.gca())
+plt.xticks(np.linspace(0, 64, 5), (np.linspace(0, 125, 5)).astype(int))
+plt.xlim(0,64)
+plt.legend(['Avg IF (std-error of mean)'], loc='center', bbox_to_anchor=(0.3, 0.5, 1, 1), frameon=False)
+plt.ylabel('Instantaneous\nFrequency (Hz)')
+
+plt.axes([.425, .8, .2, 0.075])
+plt.plot(np.nanmean(waveform_nonlinear[:,I], axis=1),'k')
+for tag in ['top','right','bottom']:
+    plt.gca().spines[tag].set_visible(False)
+plt.xticks([])
+plt.ylim(-0.1, 0.1)
+plt.legend(['Avg Waveform'],loc='center', bbox_to_anchor=(0.3, 0.5, 1, 1), frameon=False)
+plt.xlim(0,64)
+plt.ylabel(r'Amplitude (a.u.)')
+plt.title('Cycle-Onset Alignment\n\n')#\nInstantaneous. Frequency\n(std-error of mean)')
+
+# Plot phase aligned instantaneous frequency
+plt.axes([.75, .1, .2, col_height])
+pcm = plt.imshow(pa_nonlinear[:, I2].T, interpolation='nearest',  vmin=6, vmax=14, aspect='auto', origin='lower')
+decorate_ax(plt.gca())
+plt.xticks(np.arange(5)*12, ['-pi', '-pi/2', '0', 'pi/2', 'pi'])
+plt.xlabel('Theta Phase (rads)')
+
+plt.axes([.75, .6, .2, top_height/2])
+mn = np.nanmean(pa_nonlinear[:,I], axis=1)
+sem = np.nanstd(pa_nonlinear[:,I], axis=1) / np.sqrt(I.shape[0])
+plt.errorbar(np.arange(48),mn, yerr=sem, errorevery=2)
+plt.xlim(0, 48)
+decorate_ax(plt.gca())
+plt.xticks(np.arange(5)*12, ['-pi', '-pi/2', '0', 'pi/2', 'pi'])
+plt.ylabel('Instantaneous\nFrequency (Hz)')
+plt.legend(['Avg IF (std-error of mean)'], loc='center', bbox_to_anchor=(0.3, 0.5, 1, 1), frameon=False)
+
+plt.axes([.75, .8, .2, 0.075])
+plt.plot(196*np.sin(2*np.pi*np.linspace(0,1,48)),'k')
+for tag in ['top','right','bottom']:
+    plt.gca().spines[tag].set_visible(False)
+plt.xticks([])
+plt.ylim(-200,200)
+plt.legend(['Avg Waveform'],loc='center', bbox_to_anchor=(0.3, 0.5, 1, 1), frameon=False)
+plt.ylabel(r'Amplitude (a.u.)')
+plt.title('Phase Alignment\n\n')#\nInstantaneous. Frequency\n(std-error of mean)')
+
+# Inst. freq colourbar
+ax = plt.axes([.635, .25, .015, .18])
+cb = plt.colorbar(pcm, cax=ax)
+ax.yaxis.set_ticks_position('left')
+plt.title('Instantaneous\nFrequency (Hz)\n', fontsize=12)
+
+outname = os.path.join(config['figdir'], 'emd_fig4_simu_phasealign_revised.png')
+plt.savefig(outname, dpi=300, transparent=True)
+
+outname = os.path.join(config['figdir'], 'emd_fig4_simu_phasealign_revised.pdf')
+plt.savefig(outname, dpi=300, transparent=True)
+
+#%% --------------------------------------------------
+# FIGURE 5 - SHAPE COMPARISON
 
 pa_linear_avg = np.nanmean(pa_linear, axis=1)
 fs = np.mean(pa_linear_avg)
